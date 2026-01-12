@@ -8,7 +8,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 
 const app = express();
-const PORT = 4000;
+const PORT = process.env.PORT||4000;
 
 dotenv.config();
 
@@ -21,7 +21,7 @@ mongoose.connect(process.env.MONGO_URI)
 })
 
 app.use("/home", (req, res) => {
-  res.send('<button onclick="window.print()">print</button>');
+  res.send('<h1>Welcome to Vendor Management System</h1>');
 });
 
 
