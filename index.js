@@ -6,11 +6,14 @@ const productRoutes = require("./routes/productRoutes")
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const path = require('path');
+const cors = require('cors'); 
 
 const app = express();
+
 const PORT = process.env.PORT||4000;
 
 dotenv.config();
+app.use(cors());
 
 mongoose.connect(process.env.MONGO_URI)
 .then(() => {
@@ -25,7 +28,8 @@ app.use("/home", (req, res) => {
 });
 
 
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/vendor",vendorRoutes);
 app.use("/firm",firmRoutes);
 app.use("/product",productRoutes);
