@@ -1,10 +1,11 @@
 const Firm = require("../models/Firm");
 const Vendor = require("../models/Vendor");
-const multer = require("multer");  
+const multer = require("multer");
 const path = require("path");
 
+/* ---------------- MULTER SETUP ---------------- */
 
- const storage = multer.diskStorage({
+const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/");   // folder name
   },
@@ -13,54 +14,78 @@ const path = require("path");
   }
 });
 
-const upload = multer({storage});
+const upload = multer({ storage });
 
+/* ---------------- ADD FIRM ---------------- */
 
-const addFirm = async(req,resp)=>
-{
-  try
-  {
-    const {firmName,area,category,region,offer} = req.body;
+const addFirm = async (req, resp) => {
+  try {
+    const { firmName, area, category, region, offer } = req.body;
 
-  const image = req.file?req.file.filename:undefined;
-  const vendor = await Vendor.findById(req.vendorId);
+    const image = req.file ? req.file.filename : undefined;
 
-  if(!vendor)
-  {
-    res.status(404).json({message:"Vendor not found"})
-  }
-  const firm = new Firm({
-    firmName,area,category,region,offer,image,vendor:vendor._id
-  })
+    const vendor = await Vendor.findById(req.vendorId);
 
-  const savedFirm = await firm.save();
-  vendor.firm.push(savedFirm);
-
-  await vendor.save();
-  return resp.status(200).json({message:"firm added successfully🔥"})
-  }
-  catch(error)
-  {
-    console.error(error);
-    resp.status(500).json("internal Server Error")
-  }
-}
-
-const deleteFirmById = async(req,resp)=>
-{
-  try{
-  const firmId = req.params.firmId;
-  const deletedFirm = await Firm.findByIdAndDelete(firmId);
-
-   if(!deletedProduct)
-    {
-      return resp.status(404).json({error:"No product Found"})
+    if (!vendor) {
+      return resp.status(404).json({ message: "Vendor not found" });
     }
-  }catch(error)
-  {
-   console.log(error);
-   resp.status(500).json({error:"Internal Server Error"})
-  }
-}
 
-module.exports = {addFirm:[upload.single('image'),addFirm],deleteFirmById}
+    // Only one firm allowed per vendor
+    if (vendor.firm.length > 0) {
+      return resp.status(400).json({ message: "Only one firm allowed per vendor" });
+    }
+
+    const firm = new Firm({
+      firmName,
+      area,
+      category,
+      region,
+      offer,
+      image,
+      vendor: vendor._id
+    });
+
+    const savedFirm = await firm.save();
+
+    vendor.firm.push(savedFirm._id);
+    await vendor.save();
+
+    return resp.status(200).json({
+      message: "Firm added successfully 🔥",
+      firmId: savedFirm._id
+    });
+
+  } catch (error) {
+    console.error(error);
+    resp.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+/* ---------------- DELETE FIRM ---------------- */
+
+const deleteFirmById = async (req, resp) => {
+  try {
+    const firmId = req.params.firmId;
+
+    const deletedFirm = await Firm.findByIdAndDelete(firmId);
+
+    if (!deletedFirm) {
+      return resp.status(404).json({ error: "No firm found" });
+    }
+
+    return resp.status(200).json({
+      message: "Firm deleted successfully"
+    });
+
+  } catch (error) {
+    console.log(error);
+    resp.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+/* ---------------- EXPORT ---------------- */
+
+module.exports = {
+  addFirm: [upload.single("image"), addFirm],
+  deleteFirmById
+};

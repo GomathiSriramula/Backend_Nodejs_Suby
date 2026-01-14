@@ -3,7 +3,10 @@ const productController = require('../controllers/productController')
 const router = express.Router();
 
 
-router.post('/add-product/:firmId',productController.addProduct);
+router.post('/add-product/:firmId',productController.upload.single('image'), productController.addProduct);
+
+
+
 router.get('/:firmId/products',productController.getProductByFirm)
 
 router.get("/uploads/:imageName",(req,resp)=>{
@@ -15,3 +18,5 @@ router.get("/uploads/:imageName",(req,resp)=>{
 router.delete("/:productId",productController.deleteProductById);
 
 module.exports=router;
+
+

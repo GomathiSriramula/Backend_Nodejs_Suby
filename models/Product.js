@@ -23,7 +23,7 @@ image:{
 },
 bestseller:
 {
-  type:String
+  type:Boolean
 },
 description:
 {
