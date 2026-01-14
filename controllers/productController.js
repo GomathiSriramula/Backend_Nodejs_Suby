@@ -109,10 +109,42 @@ const deleteProductById = async (req, resp) => {
   }
 };
 
+const updateProduct = async (req, resp) => {
+  try {
+    const productId = req.params.productId;
+    const { productName, price, category, bestseller, description } = req.body;
+
+    // Find the product
+    const product = await Product.findById(productId);
+    if (!product) {
+      return resp.status(404).json({ error: "Product not found" });
+    }
+
+    // Update fields
+    if (productName) product.productName = productName;
+    if (price) product.price = price;
+    if (category) product.category = category;
+    if (description) product.description = description;
+    if (bestseller !== undefined) product.bestseller = bestseller === 'true' || bestseller === true;
+
+    // Handle image update if provided
+    if (req.file) {
+      product.image = req.file.filename;
+    }
+
+    const updatedProduct = await product.save();
+    resp.status(200).json({ message: "Product updated successfully", updatedProduct });
+  } catch (error) {
+    console.log(error);
+    resp.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 
 module.exports = {
   upload,
   addProduct,
   getProductByFirm,
-  deleteProductById
+  deleteProductById,
+  updateProduct
 };
