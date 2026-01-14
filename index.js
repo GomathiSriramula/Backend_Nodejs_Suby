@@ -4,7 +4,6 @@ const vendorRoutes = require("./routes/vendorRoutes")
 const firmRoutes = require("./routes/firmRoutes")
 const productRoutes = require("./routes/productRoutes")
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
 const path = require('path');
 const cors = require('cors'); 
 
@@ -23,13 +22,13 @@ mongoose.connect(process.env.MONGO_URI)
   console.log("MongoDB connection failed ❌", error);
 })
 
-app.use("/home", (req, res) => {
-  res.send('<h1>Welcome to Vendor Management System</h1>');
-});
-
-
 app.use(express.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
+
+// Health check
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "Server is running" });
+});
 app.use("/vendor",vendorRoutes);
 app.use("/firm",firmRoutes);
 app.use("/product",productRoutes);

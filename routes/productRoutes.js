@@ -1,22 +1,16 @@
 const express = require('express')
 const productController = require('../controllers/productController')
+const verifyToken = require('../midlewares/verifyToken');
 const router = express.Router();
 
+router.post('/add-product/:firmId', verifyToken, productController.upload.single('image'), productController.addProduct);
 
-router.post('/add-product/:firmId',productController.upload.single('image'), productController.addProduct);
+router.get('/:firmId/products', productController.getProductByFirm)
 
+// Image serving is handled by app.use('/uploads', express.static('uploads'))
 
+router.delete('/:productId', productController.deleteProductById);
 
-router.get('/:firmId/products',productController.getProductByFirm)
-
-router.get("/uploads/:imageName",(req,resp)=>{
-  const imageName = req.params.imageName;
-  req.setHeader('Content-Type','image/jpeg');
-  resp.sendFile(path.join(__dirname,'..','uploads',imageName));
-})
-
-router.delete("/:productId",productController.deleteProductById);
-
-module.exports=router;
+module.exports = router;
 
 

@@ -34,11 +34,14 @@ const addProduct = async (req, resp) => {
       return resp.status(404).json({ error: "firm not found" });
     }
 
+    // Coerce bestseller to boolean (FormData sends as string)
+    const isBestseller = bestseller === 'true' || bestseller === true;
+
     const product = new Product({
       productName,
       price,
       category,
-      bestseller,
+      bestseller: isBestseller,
       description,
       image,
       firm: firm._id,
@@ -81,16 +84,23 @@ const deleteProductById = async (req, resp) => {
   try {
     const productId = req.params.productId;
 
-    const deletedProduct = await Product.findByIdAndDelete(productId);
-
-    if (!deletedProduct) {
+    // Find the product first to get firm reference
+    const product = await Product.findById(productId);
+    if (!product) {
       return resp.status(404).json({ error: "No product found" });
     }
 
-    // 🔥 SUCCESS RESPONSE
+    // Delete the product
+    await Product.findByIdAndDelete(productId);
+
+    // Pull the product reference from the firm's products array
+    if (product.firm) {
+      await Firm.findByIdAndUpdate(product.firm, { $pull: { products: product._id } });
+    }
+
     return resp.status(200).json({
       message: "Product deleted successfully",
-      deletedProductId: deletedProduct._id
+      deletedProductId: product._id
     });
 
   } catch (error) {

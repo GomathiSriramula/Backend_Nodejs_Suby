@@ -29,12 +29,10 @@ description:
 {
   type:String
 },
-firm:[
-  {
-    type:mongoose.Schema.Types.ObjectId,
-    ref:'Firm'
-  }
-]
+firm: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'Firm'
+}
 });
 
 const Product = mongoose.model('Product',productSchema);

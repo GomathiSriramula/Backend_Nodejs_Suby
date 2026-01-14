@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs"); //For hashing passwords
 const dotenv = require("dotenv");
 
 dotenv.config();
-secretKey = process.env.whatIsYourName;
+const secretKey = process.env.whatIsYourName;
 /*
 const vendorRegister = async (req, resp) => {
   const { username, email, password } = req.body; //getting details from req body from form
@@ -143,6 +143,8 @@ const getVendorId = async (req, resp) => {
 
     resp.status(200).json({
       vendorId,
+      username: vendor.username,
+      email: vendor.email,
       vendorFirmId,
       vendorFirmName
     });
